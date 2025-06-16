@@ -1,0 +1,57 @@
+prompts:
+  - |
+    Generate a curl command that fetches the top 15 most-starred repositories from the "amazon" organization using the GitHub API. Use $API_KEY as the placeholder for the API key. The command should sort repositories by stars in descending order and limit results to exactly 15 repositories.
+
+providers:
+  - id: openrouter:openai/gpt-4o-mini
+    config:
+      apiBaseUrl: https://aipipe.org/openrouter/v1
+      apiKey: ${AIPIPE_TOKEN}
+      max_tokens: 1024
+  - id: openrouter:openai/gpt-4.1-nano
+    config:
+      apiBaseUrl: https://aipipe.org/openrouter/v1
+      apiKey: ${AIPIPE_TOKEN}
+      max_tokens: 1024
+  - id: openrouter:google/gemini-2.0-flash-lite-001
+    config:
+      apiBaseUrl: https://aipipe.org/openrouter/v1
+      apiKey: ${AIPIPE_TOKEN}
+
+tests:
+  - vars: {}
+    assert:
+      - type: contains
+        value: "https://api.github.com/orgs/amazon/repos"
+      - type: contains
+        value: "per_page=15"
+      - type: contains
+        value: "sort=stars"
+      - type: contains
+        value: "direction=desc"
+      - type: contains
+        value: "$API_KEY"
+      - type: contains-any
+        value:
+          - "Authorization: Bearer $API_KEY"
+          - "Authorization: token $API_KEY"
+          - "-H \"Authorization: Bearer $API_KEY\""
+          - "-H 'Authorization: Bearer $API_KEY'"
+      - type: llm-rubric
+        value: |
+          Evaluate if the curl command correctly addresses the prompt requirements:
+          - Does it fetch repositories from the "amazon" organization?
+          - Does it limit results to exactly 15 repositories?
+          - Does it sort by stars in descending order?
+          - Does it include proper authentication?
+          - Is the command syntactically correct?
+          
+          Score from 1-5 where:
+          1 = Completely incorrect or missing key elements
+          2 = Partially correct but missing important elements
+          3 = Mostly correct with minor issues
+          4 = Correct with very minor formatting issues
+          5 = Perfect and complete implementation
+
+commandLineOptions:
+  cache: true
